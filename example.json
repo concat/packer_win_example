@@ -1,0 +1,55 @@
+{
+  "variables": {
+    "application": "",
+    "sprint_ver": "",
+    "tierbundle": "",
+    "env": ""
+  },
+
+  "builders": [{
+    "type": "amazon-ebs",
+    "region": "us-east-1",
+    "source_ami_filter": {
+      "filters": {
+        "virtualization-type": "hvm",
+        "name": "Windows_Server-2012-R2_RTM-English-64Bit-Base-*",
+        "root-device-type": "ebs"
+      },
+      "owners": ["801119661308"],
+      "most_recent": true
+    },
+    "instance_type": "t2.medium",
+    "iam_instance_profile": "NasdaqPubPriv-codeDeployInstanceProfile-1C0CBEDHSSAS1",
+    "security_group_id": "sg-90396eed",
+    "communicator": "winrm",
+    "winrm_username": "Administrator",
+    "user_data_file": "bootstrap-aws.txt",
+    "ssh_keypair_name": "Beckstep1-East-Keypair",
+    "ssh_private_key_file": "/Users/beckstep/aws/keypairs/Beckstep1-East-Keypair.pem",
+    "windows_password_timeout": "30m",
+    "ami_name": "windows-2012-r2-with-codedeploy {{timestamp}}",
+    "tags": {
+      "Application": "{{user `application`}}",
+      "Sprint Version": "{{user `sprint_ver`}}",
+      "Tier": "{{user `tier`}}",
+      "Stage": "{{user `stage`}}"
+    }
+  }],
+
+  "provisioners": [
+    {
+    "type": "powershell",
+    "scripts": [
+      "scripts/InstallCodeDeployAgent.ps1"
+      ]
+    },
+    {
+    "type": "windows-shell",
+    "scripts": [ 
+      "scripts/PreSysprep.bat",
+      "scripts/CreateStartupScript.bat",
+      "scripts/Sysprep.bat"
+      ]
+    }
+ ]
+}
